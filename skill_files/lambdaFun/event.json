@@ -14,12 +14,12 @@
   "request": {
     "intent": {
       "slots": {
-        "FirstName": {
-          "name": "FirstName",
-          "value": "John"
+        "State": {
+          "name": "State",
+          "value": "New Hampshire"
         }
       },
-      "name": "HelloIntent"
+      "name": "PickStateIntent"
     },
     "type": "IntentRequest",
     "requestId": "request5678"

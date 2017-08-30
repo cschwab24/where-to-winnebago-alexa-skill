@@ -1,7 +1,7 @@
-HelloIntent say hello to {FirstName}
+PickStateIntent go to {State}
+PickStateIntent {State}
 
-QuoteIntent get me a quote
+NhPlaceIntent {NhPlace}
 
 NextQuoteIntent one more
 NextQuoteIntent yes
-

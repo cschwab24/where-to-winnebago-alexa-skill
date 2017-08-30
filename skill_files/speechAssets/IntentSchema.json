@@ -1,16 +1,22 @@
 {
   "intents":[
     {
-      "intent" : "HelloIntent",
+      "intent" : "PickStateIntent",
       "slots" : [
         {
-          "name": "FirstName",
-          "type": "GUEST_NAMES"
+          "name": "State",
+          "type": "STATES"
         }
       ]
     },
     {
-      "intent" : "QuoteIntent"
+      "intent" : "NhPlaceIntent",
+      "slots" : [
+        {
+          "name": "NhPlace",
+          "type": "NH_PLACES"
+        }
+      ]
     },
     {
       "intent" : "NextQuoteIntent"
