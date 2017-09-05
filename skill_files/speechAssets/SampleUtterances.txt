@@ -1,7 +1,4 @@
 PickStateIntent go to {State}
 PickStateIntent {State}
-
 NhPlaceIntent {NhPlace}
-
-NextQuoteIntent one more
-NextQuoteIntent yes
+CaActivityIntent {CaActivity}

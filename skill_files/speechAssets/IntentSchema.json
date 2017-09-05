@@ -19,7 +19,13 @@
       ]
     },
     {
-      "intent" : "NextQuoteIntent"
+      "intent" : "CaActivityIntent",
+      "slots" : [
+        {
+          "name": "CaActivity",
+          "type": "CA_ACTIVITIES"
+        }
+      ]
     },
     {
       "intent" : "AMAZON.StopIntent"

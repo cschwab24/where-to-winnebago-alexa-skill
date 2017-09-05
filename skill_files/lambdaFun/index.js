@@ -22,11 +22,13 @@ exports.handler = function(event,context) {
     } else if (request.type === "IntentRequest") {
       if (request.intent.name === "PickStateIntent") {
         handlePickStateIntent(request,context);
-      } else if (request.intent.name === "NhPlaceIntent") {
+      } 
+      else if (request.intent.name === "NhPlaceIntent") {
         handleNhPlaceIntent(request,context,session);
-      } else if (request.intent.name === "NextNhPlaceIntent") {
-        handleNextNhPlaceIntent(request,context,session);
-      } else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
+      } else if (request.intent.name === "CaActivityIntent") {
+        handleCaActivityIntent(request,context,session);
+      } 
+      else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
         context.succeed(buildResponse({
           speechText: "Good bye. ",
           endSession: true
@@ -45,39 +47,6 @@ exports.handler = function(event,context) {
   }
 
 } // end exports.handler
-
-function getQuote(callback) {
-  var url = "http://api.forismatic.com/api/1.0/json?method=getQuote&lang=en&format=json";
-  var req = http.get(url, function(res) {
-    var body = "";
-    res.on('data', function(chunk) {
-      body += chunk;
-    });
-    res.on('end', function() {
-      body = body.replace(/\\/g,'');
-      var quote = JSON.parse(body);
-      callback(quote.quoteText);
-    });
-  });
-  req.on('error', function(err) {
-    callback('',err);
-  });
-}
-
-function getWish() {
-  var myDate = new Date();
-  var hours = myDate.getUTCHours() - 8;
-  if (hours < 0) {
-    hours = hours + 24;
-  }
-  if (hours < 12) {
-    return "Good Morning. ";
-  } else if (hours < 18) {
-    return "Good afternoon. ";
-  } else {
-    return "Good evening. ";
-  }
-}
 
 function buildResponse(options) {
   if(process.env.NODE_DEBUG_EN) {
@@ -137,7 +106,7 @@ function handleLaunchRequest(context) {
 function handlePickStateIntent(request,context) {
   let options = {};
   let state = request.intent.slots.State.value;
-  lc_State = state.toLowerCase();
+  let lc_State = state.toLowerCase();
   if (lc_State == 'new hampshire' || state == 'california'){
     // options.speechText = `Let's go to ${state}`;
   }
@@ -156,46 +125,40 @@ function handlePickStateIntent(request,context) {
   }
   options.cardTitle = "Adventure Time!"
   options.cardContent = `Let's go to ${state}!`;
-  options.endSession = true;
+  options.endSession = false;
   context.succeed(buildResponse(options));
 }
 
 function handleNhPlaceIntent(request,context,session) {
   let options = {};
+  let nh_place = request.intent.slots.NhPlace.value;
   options.session = session;
-  getQuote(function(quote,err) {
-    if(err) {
-      context.fail(err);
-    } else {
-      options.speechText = quote;
-      options.speechText += " Do you want to listen to one more quote? ";
-      options.repromptText = "You can say yes or one more. ";
-      options.session.attributes.NhPlaceIntent = true;
-      options.endSession = false;
-      context.succeed(buildResponse(options));
-    }
-  });
+  if (nh_place == 'hike' || nh_place == 'hike a mountain') {
+    options.speechText = "Great, we’d suggest Mount Washington, the tallest peak east of the Mississippi. This mountain has an elevation of 6,289 feet and is home to some of the world’s wildest weather. You can stay at the nearby Twin Mountain KOA campground. An adventure card has been sent with an address, phone number, and additional information.";
+    options.cardTitle = "Twin Mountain KOA campground"
+    options.cardContent = "Amenities:\n\u202250 AMP Max\n\u202290’ Max Length\n\u2022Wi-Fi\n\u2022Cable TV\n\u2022Pool\n\u2022Dog Park\n\u2022Game Room\n\u2022General Store\nhttp://koa.com/campgrounds/twin-mountain/\n372 NH-115\nCarroll, NH 03598\n(603) 846-5559";
+  } else if (nh_place == 'seacoast' || nh_place == 'visit the seacoast') {
+    options.speechText = "Great, we recommend the Wakeda Campground located in Hampton Falls. It’s close to the beaches and a short drive from our home, the bustling seaside town of Portsmouth, NH.  An adventure card has been sent with the address, phone number, and additional information.";
+    options.cardTitle = "Wakeda Campground";
+    options.cardContent = "http://www.wakedacampground.com/ \n 294 Exeter Rd, Hampton Falls, NH 03844 \n (603) 772-5274";
+  }
+  options.endSession = false;
+  context.succeed(buildResponse(options));
 }
 
-function handleNextNhPlaceIntent(request,context,session) {
+function handleCaActivityIntent(request,context,session) {
   let options = {};
+  let ca_activity = request.intent.slots.CaActivity.value;
   options.session = session;
-  if(session.attributes.NhPlaceIntent) {
-    getQuote(function(quote,err) {
-      if(err) {
-        context.fail(err);
-      } else {
-        options.speechText = quote;
-        options.speechText += " Do you want to listen to one more quote? ";
-        options.repromptText = "You can say yes or one more. ";
-        //options.session.attributes.NhPlaceIntent = true;
-        options.endSession = false;
-        context.succeed(buildResponse(options));
-      }
-    });
-  } else {
-    options.speechText = " Wrong invocation of this intent. ";
-    options.endSession = true;
-    context.succeed(buildResponse(options));
+  if (ca_activity == 'family' || ca_activity == 'family friendly') {
+    options.speechText = "Everyone loves Disneyland, right? The closest place to park your RV near Disneyland is less than two miles away at the Anaheim RV Park. An adventure card has been sent with an address, phone number, and additional information.";
+    options.cardTitle = "Disneyland"
+    options.cardContent = "www.anaheimrvpark.com\n200 W Midway Dr\nAnaheim, CA 92805\n(714) 774-3860";
+  } else if (ca_activity == 'adults' || ca_activity == 'adults only') {
+    options.speechText = "Rad! Drive your Winnebago over to the American River Resort. This resort also offers white water rafting excursions as one of their amenities. An adventure card has been sent to you with and address, phone number and additional information.";
+    options.cardTitle = "American River Resort";
+    options.cardContent = "http://www.americanriverresort.com/\n6019 New River Road\nColoma, CA 95613\n(530) 622-6700";
   }
+  options.endSession = false;
+  context.succeed(buildResponse(options));
 }
