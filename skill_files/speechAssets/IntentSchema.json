@@ -28,11 +28,11 @@
       ]
     },
     {
-      "intent" : "StartOverIntent",
+      "intent" : "MoreInfoIntent",
       "slots" : [
         {
-          "name": "StartOver",
-          "type": "START_OVER"
+          "name": "MoreInfo",
+          "type": "MORE_INFO"
         }
       ]
     },
@@ -42,6 +42,15 @@
         {
           "name": "Back",
           "type": "BACK"
+        }
+      ]
+    },
+    {
+      "intent" : "StartOverIntent",
+      "slots" : [
+        {
+          "name": "StartOver",
+          "type": "START_OVER"
         }
       ]
     },

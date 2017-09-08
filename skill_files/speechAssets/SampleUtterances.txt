@@ -2,5 +2,6 @@ PickStateIntent go to {State}
 PickStateIntent {State}
 NhPlaceIntent {NhPlace}
 CaActivityIntent {CaActivity}
-StartOverIntent {StartOver}
+MoreInfoIntent {MoreInfo}
 BackIntent {Back}
+StartOverIntent {StartOver}

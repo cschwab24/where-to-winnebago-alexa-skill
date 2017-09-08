@@ -1,21 +1,12 @@
 'use strict';
-
 var http = require('http');
 
 exports.handler = function(event,context) {
-
   try {
-
-    if(process.env.NODE_DEBUG_EN) {
-      console.log("Request:\n"+JSON.stringify(event,null,2));
-    }
-
+    if (process.env.NODE_DEBUG_EN) {console.log("Request:\n"+JSON.stringify(event,null,2));}
     var request = event.request;
     var session = event.session;
-
-    if(!event.session.attributes) {
-      event.session.attributes = {};
-    }
+    if(!event.session.attributes) {event.session.attributes = {};}
 
     if (request.type === "LaunchRequest") {
       handleLaunchRequest(context);
@@ -26,10 +17,12 @@ exports.handler = function(event,context) {
         handleNhPlaceIntent(request,context,session);
       } else if (request.intent.name === "CaActivityIntent") {
         handleCaActivityIntent(request,context,session);
-      } else if (request.intent.name === "StartOverIntent") {
-        handleStartOverIntent(request,context,session);
+      } else if (request.intent.name === "MoreInfoIntent") {
+        handleMoreInfoIntent(request,context,session);
       } else if (request.intent.name === "BackIntent") {
         handleBackIntent(request,context,session);
+      } else if (request.intent.name === "StartOverIntent") {
+        handleStartOverIntent(request,context,session);
       } else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
         context.succeed(buildResponse({
           speechText: "Good bye. ",
@@ -43,11 +36,9 @@ exports.handler = function(event,context) {
     } else {
       throw "Unknown intent type";
     }
-
   } catch(e) {
     context.fail("Exception: "+e);
   }
-
 } // end exports.handler
 
 function buildResponse(options) {
@@ -110,9 +101,6 @@ function handlePickStateIntent(request,context,session) {
   let state = request.intent.slots.State.value;
   let lc_State = state.toLowerCase();
   options.session = session;
-  if (lc_State == 'new hampshire' || state == 'california'){
-    // options.speechText = `Let's go to ${state}`;
-  }
   switch(lc_State){
     case 'new hampshire':
       options.speechText = "Great, we think the granite state is pretty cool too. Would you like to hike a mountain or visit the seacoast?";
@@ -140,9 +128,7 @@ function handleNhPlaceIntent(request,context,session) {
   let nh_place = request.intent.slots.NhPlace.value;
   options.session = session;
   if (nh_place == 'hike' || nh_place == 'hike a mountain') {
-    options.speechText = "Great, we’d suggest Mount Washington, the tallest peak east of the Mississippi. This mountain has an elevation of 6,289 feet and is home to some of the world’s wildest weather. You can stay at the nearby Twin Mountain KOA campground. An adventure card has been sent with an address, phone number, and additional information.";
-    options.cardTitle = "Twin Mountain KOA campground"
-    options.cardContent = "Amenities:\n\u202250 AMP Max\n\u202290’ Max Length\n\u2022Wi-Fi\n\u2022Cable TV\n\u2022Pool\n\u2022Dog Park\n\u2022Game Room\n\u2022General Store\nhttp://koa.com/campgrounds/twin-mountain/\n372 NH-115\nCarroll, NH 03598\n(603) 846-5559";
+    options.speechText = "Great, we’d suggest Mount Washington, the tallest peak east of the Mississippi. This mountain has an elevation of 6,289 feet and is home to some of the world’s wildest weather. To learn more say stay, food, or info.";
     options.session.attributes.nhplace = "hike";
   } else if (nh_place == 'seacoast' || nh_place == 'visit the seacoast') {
     options.speechText = "Great, we recommend the Wakeda Campground located in Hampton Falls. It’s close to the beaches and a short drive from our home, the bustling seaside town of Portsmouth, NH.  An adventure card has been sent with the address, phone number, and additional information.";
@@ -173,14 +159,98 @@ function handleCaActivityIntent(request,context,session) {
   context.succeed(buildResponse(options));
 }
 
-function handleStartOverIntent(request,context,session) {
+function handleMoreInfoIntent(request,context,session) {
   let options = {};
   options.session = session;
-  options.speechText =  "Let’s get you started on your next adventure. First let’s pick a state. Would you rather explore New Hampshire or California?";
-  options.repromptText = "Would you rather explore New Hampshire or California?";
-  options.session.attributes.currentstate = "";
-  options.session.attributes.nhplace = "";
-  options.session.attributes.caactivity = "";
+  let action = request.intent.slots.MoreInfo.value;
+  let currentstate = options.session.attributes.currentstate;
+  let nhplace = options.session.attributes.nhplace;
+  let caactivity = options.session.attributes.caactivity;
+  if (currentstate == 'new hampshire') {
+    if (nhplace == 'hike') {
+      switch(action){
+        case 'stay':
+          options.speechText = "You can stay at the nearby Twin Mountain KOA campground. An adventure card has been sent with an address, phone number, and additional information.";
+          options.cardTitle = "Twin Mountain KOA campground"
+          options.cardContent = "Amenities:\n\u202250 AMP Max\n\u202290’ Max Length\n\u2022Wi-Fi\n\u2022Cable TV\n\u2022Pool\n\u2022Dog Park\n\u2022Game Room\n\u2022General Store\nhttp://koa.com/campgrounds/twin-mountain/\n372 NH-115\nCarroll, NH 03598\n603-846-5559";
+          break;
+        case 'food':
+          options.speechText = "Grab a bite to eat at Munroe’s Family Restaurant. It has good food, generous portion sizes, and great prices. An adventure card has been sent with address, phone number, and additional information.";
+          options.cardTitle = "Munroe’s Family Restaurant"
+          options.cardContent = "633 US-3\nTwin Mountain, NH 03595\n603-846-5542\nhttps://www.yelp.com/biz/munroes-family-restaurant-twin-mountain";
+          break;
+        case 'info':
+          options.speechText = "Don’t forget to fuel up before entering the White Mountain National Forest. We’ve sent you an adventure card that shows nearby gas stations as well as our preferred hikes and area activities.";
+          options.cardTitle = "Preferred Hikes and Area Activities"
+          options.cardContent = "1598 Mt Washington Auto Rd\nSargent's Purchase, NH\n603-466-3347\nAMC Guide:\n\u2022http://www.outdoors.org/trip-ideas-tips-resources/plan-your-trip/nh-4000-footers/hiking-mount-washington.cfm\nNearby Hike: Franconia Ridge Trail\n\u2022https://www.alltrails.com/trail/us/new-hampshire/mount-lafayette-and-franconia-ridge-trail-loop";
+          break;
+        default:
+          options.speechText = "To learn more, say stay, food, or info";
+      }
+    } else if (nhplace == 'seacoast') {
+      switch(action){
+        case 'stay':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        case 'food':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        case 'info':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        default:
+          options.speechText = "To learn more, say stay, food, or info";
+      }
+    }
+  } else if (currentstate == 'california'){
+    if (caactivity == 'family') {
+      switch(action){
+        case 'stay':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        case 'food':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        case 'info':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        default:
+          options.speechText = "To learn more, say stay, food, or info";
+      }
+    } else if (caactivity == 'adult') {
+      switch(action){
+        case 'stay':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        case 'food':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        case 'info':
+          options.speechText = "";
+          options.cardTitle = ""
+          options.cardContent = "";
+          break;
+        default:
+          options.speechText = "To learn more, say stay, food, or info";
+      }
+    }
+  }
   options.endSession = false;
   context.succeed(buildResponse(options));
 }
@@ -223,10 +293,14 @@ function handleBackIntent(request,context,session) {
   context.succeed(buildResponse(options));
 }
 
-
-
-
-
-
-
-
+function handleStartOverIntent(request,context,session) {
+  let options = {};
+  options.session = session;
+  options.speechText =  "Let’s get you started on your next adventure. First let’s pick a state. Would you rather explore New Hampshire or California?";
+  options.repromptText = "Would you rather explore New Hampshire or California?";
+  options.session.attributes.currentstate = "";
+  options.session.attributes.nhplace = "";
+  options.session.attributes.caactivity = "";
+  options.endSession = false;
+  context.succeed(buildResponse(options));
+}
