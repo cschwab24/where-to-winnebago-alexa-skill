@@ -28,6 +28,15 @@
       ]
     },
     {
+      "intent" : "StartOverIntent",
+      "slots" : [
+        {
+          "name": "StartOver",
+          "type": "START_OVER"
+        }
+      ]
+    },
+    {
       "intent" : "AMAZON.StopIntent"
     }
   ]

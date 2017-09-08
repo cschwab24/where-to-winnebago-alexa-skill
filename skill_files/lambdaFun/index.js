@@ -22,13 +22,13 @@ exports.handler = function(event,context) {
     } else if (request.type === "IntentRequest") {
       if (request.intent.name === "PickStateIntent") {
         handlePickStateIntent(request,context);
-      } 
-      else if (request.intent.name === "NhPlaceIntent") {
+      } else if (request.intent.name === "NhPlaceIntent") {
         handleNhPlaceIntent(request,context,session);
       } else if (request.intent.name === "CaActivityIntent") {
         handleCaActivityIntent(request,context,session);
-      } 
-      else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
+      } else if (request.intent.name === "StartOverIntent") {
+        handleStartOverIntent(request,context,session);
+      } else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
         context.succeed(buildResponse({
           speechText: "Good bye. ",
           endSession: true
@@ -97,7 +97,7 @@ function buildResponse(options) {
 
 function handleLaunchRequest(context) {
   let options = {};
-  options.speechText =  "Hello, welcome to Where-to Winnebago! Let’s get you started on your next adventure. You can respond “Back” at any time to go back to the previous question. First let’s pick a state. Would you rather explore New Hampshire or California?";
+  options.speechText =  "Hello, welcome to Where-to Winnebago! Let’s get you started on your next adventure. You can respond back to return to the previous question or start over to start a new adventure. First let’s pick a state. Would you rather explore New Hampshire or California?";
   options.repromptText = "Would you rather explore New Hampshire or California?";
   options.endSession = false;
   context.succeed(buildResponse(options));
@@ -113,11 +113,11 @@ function handlePickStateIntent(request,context) {
   switch(lc_State){
     case 'new hampshire':
       options.speechText = "Great, we think the granite state is pretty cool too. Would you like to hike a mountain or visit the seacoast?";
-      options.imageUrl = "http://www.rocketbanner.com/images/states/new-hampshire/new-hampshire-vinyl-banners.jpg";
+      options.imageUrl = "https://www.rocketbanner.com/images/states/new-hampshire/new-hampshire-vinyl-banners.jpg";
       break;
     case 'california':
       options.speechText = "Okay, are you interested in family friendly activities or adults only?";
-      options.imageUrl = "http://cdn.history.com/sites/2/2015/09/GettyImages-501880463.jpg";
+      options.imageUrl = "https://cdn.history.com/sites/2/2015/09/GettyImages-501880463.jpg";
       break;
     default:
       options.speechText = "Please choose from either California or New Hampshire for this prototype.";
@@ -162,3 +162,19 @@ function handleCaActivityIntent(request,context,session) {
   options.endSession = false;
   context.succeed(buildResponse(options));
 }
+
+function handleStartOverIntent(request,context,session) {
+  let options = {};
+  options.speechText =  "Let’s get you started on your next adventure. First let’s pick a state. Would you rather explore New Hampshire or California?";
+  options.repromptText = "Would you rather explore New Hampshire or California?";
+  options.endSession = false;
+  context.succeed(buildResponse(options));
+}
+
+
+
+
+
+
+
+
