@@ -2,7 +2,11 @@
   "session": {
     "new": false,
     "sessionId": "session1234",
-    "attributes": {},
+    "attributes": {
+      "currentstate" : "",
+      "nhplace" : "",
+      "caactivity" : ""
+    },
     "user": {
       "userId": "usr123"
     },

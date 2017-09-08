@@ -37,6 +37,15 @@
       ]
     },
     {
+      "intent" : "BackIntent",
+      "slots" : [
+        {
+          "name": "Back",
+          "type": "BACK"
+        }
+      ]
+    },
+    {
       "intent" : "AMAZON.StopIntent"
     }
   ]
